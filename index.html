@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Escáner QR / Código de Barras</title>
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 1rem; }
+    #reader { width: 100%; max-width: 400px; margin: 20px auto; display: none; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background-color: #f0f0f0; }
+    button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h2>Escaneo con cámara</h2>
+  <button onclick="iniciarEscaneo()">📷 Escanear</button>
+  <div id="reader"></div>
+  <h3>Historial de escaneos</h3>
+  <table id="history">
+    <thead>
+      <tr><th>Dato Escaneado</th><th>Fecha y Hora</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    let scanner;
+
+    function agregarAFila(dato) {
+      const tabla = document.querySelector("#history tbody");
+      const fila = document.createElement("tr");
+      const celda1 = document.createElement("td");
+      const celda2 = document.createElement("td");
+      celda1.textContent = dato;
+      celda2.textContent = new Date().toLocaleString();
+      fila.appendChild(celda1);
+      fila.appendChild(celda2);
+      tabla.prepend(fila);
+    }
+
+    function iniciarEscaneo() {
+      document.getElementById("reader").style.display = "block";
+      scanner = new Html5Qrcode("reader");
+      const config = { fps: 10, qrbox: 250 };
+
+      scanner.start(
+        { facingMode: "environment" },
+        config,
+        (decodedText, decodedResult) => {
+          agregarAFila(decodedText);
+          // scanner.stop(); // Si querés que se detenga después de escanear
+        },
+        (errorMessage) => {
+          // console.log(errorMessage);
+        }
+      ).catch(err => console.error("Error al iniciar escáner", err));
+    }
+  </script>
+</body>
+</html>
