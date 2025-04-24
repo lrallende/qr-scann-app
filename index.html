@@ -25,8 +25,12 @@
     <tbody></tbody>
   </table>
 
+  <audio id="beep" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg" preload="auto"></audio>
+
   <script>
     let scanner;
+    let ultimoTexto = "";
+    let tiempoUltimo = 0;
 
     function agregarAFila(dato) {
       const tabla = document.querySelector("#history tbody");
@@ -40,6 +44,11 @@
       tabla.prepend(fila);
     }
 
+    function reproducirSonido() {
+      const beep = document.getElementById("beep");
+      beep.play();
+    }
+
     function iniciarEscaneo() {
       document.getElementById("reader").style.display = "block";
       scanner = new Html5Qrcode("reader");
@@ -49,8 +58,13 @@
         { facingMode: "environment" },
         config,
         (decodedText, decodedResult) => {
-          agregarAFila(decodedText);
-          // scanner.stop(); // Si querés que se detenga después de escanear
+          const ahora = Date.now();
+          if (decodedText !== ultimoTexto || (ahora - tiempoUltimo) > 2000) {
+            ultimoTexto = decodedText;
+            tiempoUltimo = ahora;
+            agregarAFila(decodedText);
+            reproducirSonido();
+          }
         },
         (errorMessage) => {
           // console.log(errorMessage);
