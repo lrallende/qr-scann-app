@@ -4,18 +4,13 @@
   <meta charset="UTF-8">
   <title>Escáner QR / Código de Barras</title>
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 1rem; }
-    #reader { width: 100%; max-width: 400px; margin: 20px auto; display: none; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-    th { background-color: #f0f0f0; }
-    button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
-  </style>
+  <script type="module" src="app.js"></script>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h2>Escaneo con cámara</h2>
-  <button onclick="iniciarEscaneo()">📷 Escanear</button>
+  <h2>Escaneo con camara</h2>
+  <button onclick="iniciarEscaneo()">Escanear</button>
+  <button onclick="detenerEscaneo()">Apagar camara</button>
   <div id="reader"></div>
   <h3>Historial de escaneos</h3>
   <table id="history">
@@ -26,51 +21,16 @@
   </table>
 
   <audio id="beep" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg" preload="auto"></audio>
-
-  <script>
-    let scanner;
-    let ultimoTexto = "";
-    let tiempoUltimo = 0;
-
-    function agregarAFila(dato) {
-      const tabla = document.querySelector("#history tbody");
-      const fila = document.createElement("tr");
-      const celda1 = document.createElement("td");
-      const celda2 = document.createElement("td");
-      celda1.textContent = dato;
-      celda2.textContent = new Date().toLocaleString();
-      fila.appendChild(celda1);
-      fila.appendChild(celda2);
-      tabla.prepend(fila);
-    }
-
-    function reproducirSonido() {
-      const beep = document.getElementById("beep");
-      beep.play();
-    }
-
-    function iniciarEscaneo() {
-      document.getElementById("reader").style.display = "block";
-      scanner = new Html5Qrcode("reader");
-      const config = { fps: 10, qrbox: 250 };
-
-      scanner.start(
-        { facingMode: "environment" },
-        config,
-        (decodedText, decodedResult) => {
-          const ahora = Date.now();
-          if (decodedText !== ultimoTexto || (ahora - tiempoUltimo) > 2000) {
-            ultimoTexto = decodedText;
-            tiempoUltimo = ahora;
-            agregarAFila(decodedText);
-            reproducirSonido();
-          }
-        },
-        (errorMessage) => {
-          // console.log(errorMessage);
-        }
-      ).catch(err => console.error("Error al iniciar escáner", err));
-    }
-  </script>
+  <div id="formulario" style="display:none; margin-top: 2rem;">
+    <h3>Ficha del Activo</h3>
+    <label>ID: <input id="id" readonly></label><br>
+    <label>Tipo: <input id="tipo"></label><br>
+    <label>Usuario: <input id="usuario"></label><br>
+    <label>Area: <input id="area"></label><br>
+    <label>Marca: <input id="marca"></label><br>
+    <label>Fecha Asignacion: <input id="fecha" type="date"></label><br><br>
+    <label>Serial Number: <input id="sn"></label><br><br>
+    <button onclick="guardarActivo()">💾 Guardar</button>
+  </div>
 </body>
 </html>
